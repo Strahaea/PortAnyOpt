@@ -1,5 +1,4 @@
-This project uses Python libraries such as Numpy, Pandas, and Scipy to make a Pandas dataframe contatining price information
-on various stocks (you can choose any stock and any date range to put in the portfolio so long as it is in the data folder).
+This project uses Python libraries such as Numpy, Pandas, and Scipy to make, analyze, and optimize a Pandas dataframe contatining price information on various stocks (you can choose any stock and any date range to put in the portfolio so long as it is in the data folder).
 
 Once you know what portfolio of stocks you want to analyze as well as the dates and allocations, you can put their information
 into the analysis.py test_run() function and you'll get an output giving important statistics on the portfolio such as
