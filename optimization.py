@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Apr 01 02:44:58 2016
-Optimizes a portfolio for \Maximum Sharpe RatioSharpe Ratio
+Optimizes a portfolio for Return, Risk, or (ideally) Sharpe Ratio
+Taken from Georgia Tech's Machine Learning for Trading. Wiki for the project:
+http://quantsoftware.gatech.edu/MC1-Project-2
 @author: Kenneth
 """
 
-"""
-Goal outputs:
-allocs, cr, adr, sddr, sr = \
-    optimize_portfolio(sd=dt.datetime(2008,1,1), ed=dt.datetime(2009,1,1), \
-    syms=['GOOG','AAPL','GLD','XOM'], gen_plot=False)
-"""
 import datetime as dt
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize as spo
 
@@ -38,7 +33,7 @@ def get_data(symbols, dates):
     return df
 
 def normalize_data(df):
-    #normalizes the data
+    """normalizes the data"""
     return df/ df.ix[0,:]
     
 def compute_daily_returns(df):
@@ -48,9 +43,12 @@ def compute_daily_returns(df):
     return daily_returns
     
 def assess_portfolio(sd, ed, syms, allocs, sv, rfr, sf, gen_plot):
+    #sd = start date, ed = end date, syms = stock symbols, allocs = allocation
+    #sv = start value, rfr = daily risk free rate (usually zero), sf = sampling frequency
+    #gen_plot = whether or not you want to plot
     """Process the data to make it possible to get the statistics"""   
     dates = pd.date_range(sd, ed) #turns the given dates into a range for indexing
-    prices = get_data(syms, dates= dates) #makes the dataframe using symbols and dates
+    prices = get_data(syms, dates= dates) #makes the dataframe using symbol2s and dates
     normed = normalize_data(prices)
     alloced = normed*allocs 
     pos_vals = alloced*sv #the amount of money in each stock
@@ -105,18 +103,24 @@ def sharpe_ratio(allocs, normed):
 
 #Now we run the optimization and find optimal allocations
 def optimize_portfolio(sd, ed, syms, gen_plot):
-    #read in necessary data for minimize, i.e. normalized price data    
+    #reads in necessary data for minimize, i.e. normalized price data    
     dates = pd.date_range(sd, ed) #turns the given dates into a range for indexing
     prices = get_data(syms, dates= dates) #makes the dataframe using symbols and dates
     normed = normalize_data(prices)
     
-    #guess the initial allocation
-    guess_allocs = [(1./len(syms))] *len(syms) #just guess all the same 
+    """Prep for the minimize function"""
+    guess_allocs = [(1./len(syms))] *len(syms) #just guess all the same allocations for initial guess
     bnds = ((0.,1.),) * len(syms) #make sure all allocations are between 0 and 1
+    
+    """Run the minimize function"""
     allocs = spo.minimize(sharpe_ratio, guess_allocs, args = (normed,), \
         method='SLSQP', options = {'disp':True}, bounds = bnds, \
         constraints = ({ 'type': 'eq', 'fun': lambda allocs: 1.0 - np.sum(allocs) })) #make sure allocations sum up to 1
+    
+    #run these allocations through assess_portfolio to get info 
     cr,adr,sddr,sr,er = assess_portfolio(sd, ed, syms, allocs.x,1,0,252,gen_plot )   #use 1 as startvalue, 0 as rfr, and 252 as sampling frequency
+    
+    #print out the results    
     print "Start Date:", sd
     print "End Date:", ed
     print "Symbols:", syms

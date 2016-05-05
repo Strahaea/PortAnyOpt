@@ -12,7 +12,6 @@ http://quantsoftware.gatech.edu/MC1-Project-1
 @author: Kenneth Dopp
 """
 
-import os
 import datetime as dt
 import pandas as pd
 
@@ -33,7 +32,7 @@ def get_data(symbols, dates):
     return df
 
 def normalize_data(df):
-    #normalizes the data
+    """normalizes the data"""
     return df/ df.ix[0,:]
     
 def compute_daily_returns(df):
@@ -43,6 +42,9 @@ def compute_daily_returns(df):
     return daily_returns
     
 def assess_portfolio(sd, ed, syms, allocs, sv, rfr, sf, gen_plot):
+    #sd = start date, ed = end date, syms = stock symbols, allocs = allocation
+    #sv = start value, rfr = daily risk free rate (usually zero), sf = sampling frequency
+    #gen_plot = whether or not you want to plot
     """Process the data to make it possible to get the statistics"""   
     dates = pd.date_range(sd, ed) #turns the given dates into a range for indexing
     prices = get_data(syms, dates= dates) #makes the dataframe using symbols and dates
@@ -53,7 +55,7 @@ def assess_portfolio(sd, ed, syms, allocs, sv, rfr, sf, gen_plot):
     daily_returns = compute_daily_returns(port_val)
     
     """Compute the Statistics cr, adr, sddr"""    
-    cr = (port_val[-1]/port_val[0])-1 #the cumulative return for the portfolio, 
+    cr = (port_val[-1]/port_val[0])-1 #the cumulative return for the portfolio
     adr = daily_returns.mean() #the average daily return
     sddr = daily_returns.std() #standard deviation of daily returns
     
@@ -64,7 +66,7 @@ def assess_portfolio(sd, ed, syms, allocs, sv, rfr, sf, gen_plot):
     sr = ((daily_returns - dailyrfr).mean()/sddr)*(sf**(1./2)) #sharpe ratio is Rp - Rf / stdp
     
     """End value of the Portfolio"""
-    er = (1+cr) * sv #the cumulative return times the start value
+    ev = (1+cr) * sv #the cumulative return times the start value equals end value
     
     """Plot the data"""
     if gen_plot == True:
@@ -86,7 +88,9 @@ def assess_portfolio(sd, ed, syms, allocs, sv, rfr, sf, gen_plot):
     print "Volatility (stdev of daily returns):", sddr
     print "Average Daily Return:", adr
     print "Cumulative Return:", cr
-    return cr, adr, sddr, sr, er #return so they can be accessed and worked with if necessary
+    print "Starting Portfolio Value:", sv
+    print "Ending Portfolio Value:", ev
+    return cr, adr, sddr, sr, ev #return so they can be accessed and worked with if necessary
 
 def test_run():
     assess_portfolio(sd=dt.datetime(2010,1,1), ed=dt.datetime(2010,12,31), \
