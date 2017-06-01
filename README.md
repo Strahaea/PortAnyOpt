@@ -17,4 +17,5 @@ The relevant instruction for this project as well as the data folder is taken fr
 Machine Learning for Trading
 
 analysis.py: http://quantsoftware.gatech.edu/MC1-Project-1
+
 optimization.py: http://quantsoftware.gatech.edu/MC1-Project-2
